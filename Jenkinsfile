@@ -6,11 +6,10 @@ pipeline{
     PORT_MAPPING = '8081:3000'
   }
   stages{
-    stage(check_files){
+    stage('check_files'){
       steps{
         sh '''
           ls -l 
-          $PWD
         '''
       }
     }
