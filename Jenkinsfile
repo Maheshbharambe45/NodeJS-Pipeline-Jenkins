@@ -2,7 +2,7 @@ pipeline{
   agent any
 
   environment {
-    IMG_NAME = 'maheshbharmbe45/node_img'
+    IMG_NAME = 'maheshbharambe45/node_img'
     PORT_MAPPING = '8081:3000'
   }
   stages{
