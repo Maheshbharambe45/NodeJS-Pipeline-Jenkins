@@ -14,6 +14,18 @@ pipeline{
       }
     }
 
+  stage('building the application'){
+    steps{
+      sh '''
+      echo "Building the application------------->"
+      docker build -t $IMG_NAME .
+      '''
+    }
+  }
+
+
+
+
     
   }
   
