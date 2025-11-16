@@ -33,6 +33,20 @@ pipeline{
     }
   }
 
+ stage(' Push Image') {
+            steps {
+                 withCredentials([usernamePassword(credentialsId: 'docker-crediantials', usernameVariable: 'MY_DOCKER_USER',
+    passwordVariable: 'MY_DOCKER_PASS')]) {
+                    sh '''
+                        echo "$MY_DOCKER_PASS" | docker login -u "$MY_DOCKER_USER" --password-stdin
+                        docker push $IMAGE_NAME
+                       
+                   '''
+              }
+        }
+     }
+
+    
   stage('check pods'){
     steps{
       sh '''
