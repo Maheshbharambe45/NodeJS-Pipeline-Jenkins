@@ -24,14 +24,14 @@ pipeline{
   }
 
 
-  stage('Running a docker container'){
-    steps{
-      sh '''
-      echo "Running  container from created img----------->"
-      docker run -d --name "my_container" -p $PORT_MAPPING $IMG_NAME
-      '''
-    }
-  }
+  // stage('Running a docker container'){
+  //   steps{
+  //     sh '''
+  //     echo "Running  container from created img----------->"
+  //     docker run -d --name "my_container" -p $PORT_MAPPING $IMG_NAME
+  //     '''
+  //   }
+  // }
 
  stage(' Push Image') {
             steps {
@@ -46,11 +46,19 @@ pipeline{
         }
      }
 
+
+  stage('run pod and service'){
+    steps{
+      sh '''
+        kubectl apply -f .
+      '''
+    }
+  }
     
   stage('check pods'){
     steps{
       sh '''
-        kubectl get pods
+        kubectl get all
       '''
     }
   }
