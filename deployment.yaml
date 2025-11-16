@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: nodejs-demo
-        image: maheshbharmbe45/node_img:latest
+        image: maheshbharambe45/node_img:latest
         ports:
         - containerPort: 3000
