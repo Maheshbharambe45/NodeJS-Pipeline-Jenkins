@@ -28,7 +28,7 @@ pipeline{
     steps{
       sh '''
       echo "Running  container from created img----------->"
-      docker run -d --name "my_container" -p $PORT_MAPPING $IMG_NAME
+ //     docker run -d --name "my_container" -p $PORT_MAPPING $IMG_NAME
       '''
     }
   }
