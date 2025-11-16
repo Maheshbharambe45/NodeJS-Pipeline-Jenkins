@@ -33,6 +33,13 @@ pipeline{
     }
   }
 
+  stage('check pods'){
+    steps{
+      sh '''
+        kubectl get pods
+      '''
+    }
+  }
     
   }
   
