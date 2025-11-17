@@ -26,7 +26,7 @@ pipeline{
     steps{
       sh '''
       echo "Building the application------------->"
-      docker build -t $IMG_NAME .
+      docker build -t ${IMG_NAME}:latest .
       '''
     }
   }
@@ -47,7 +47,7 @@ pipeline{
     passwordVariable: 'MY_DOCKER_PASS')]) {
                     sh '''
                         echo "$MY_DOCKER_PASS" | docker login -u "$MY_DOCKER_USER" --password-stdin
-                        docker push $IMG_NAME
+                        docker push ${IMG_NAME}:latest
                        
                    '''
               }
