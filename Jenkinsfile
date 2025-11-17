@@ -57,8 +57,9 @@ pipeline{
   stage('run pod and service'){
     steps{
       sh '''
-        kubectl apply -f deployment.yaml
-        kubectl apply -f service.yml
+        minikube kubectl -- apply -f deployment.yaml
+        minikube kubectl -- apply -f service.yml
+
       '''
     }
   }
