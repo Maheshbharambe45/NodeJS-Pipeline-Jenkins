@@ -1,4 +1,4 @@
-pipeline{
+pipeline {
   agent any
 
   environment {
@@ -6,90 +6,69 @@ pipeline{
     PORT_MAPPING = '8081:3000'
     MINIKUBE_IP = '3.110.80.110'
   }
-  stages{
-    stage('check_files'){
-      steps{
-        sh '''
-          ls -l 
-        '''
-      }
+
+  stages {
+
+    stage('check_files') {
+      steps { sh 'ls -l' }
     }
 
     stage('Run Tests') {
       steps {
-          echo 'Running Jest tests...'
-          sh 'npm install'
-          sh 'npm test'
+        echo 'Running Jest tests...'
+        sh 'npm install'
+        sh 'npm test'
       }
-  }
-  stage('building the application'){
-    steps{
-      sh '''
-      echo "Building the application------------->"
-      docker build -t ${IMG_NAME}:latest .
-      '''
     }
-  }
 
+    stage('Build Docker Image') {
+      steps {
+        sh '''
+          echo "Building Docker Image ----->"
+          docker build -t ${IMG_NAME}:latest .
+        '''
+      }
+    }
 
-  // stage('Running a docker container'){
-  //   steps{
-  //     sh '''
-  //     echo "Running  container from created img----------->"
-  //     docker run -d --name "my_container" -p $PORT_MAPPING $IMG_NAME
-  //     '''
-  //   }
-  // }
-
- stage(' Push Image') {
-            steps {
-                 withCredentials([usernamePassword(credentialsId: 'docker-crediantials', usernameVariable: 'MY_DOCKER_USER',
-    passwordVariable: 'MY_DOCKER_PASS')]) {
-                    sh '''
-                        echo "$MY_DOCKER_PASS" | docker login -u "$MY_DOCKER_USER" --password-stdin
-                        docker push ${IMG_NAME}:latest
-                       
-                   '''
-              }
+    stage('Push Image') {
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'docker-crediantials',
+          usernameVariable: 'MY_DOCKER_USER',
+          passwordVariable: 'MY_DOCKER_PASS'
+        )]) {
+          sh '''
+            echo "$MY_DOCKER_PASS" | docker login -u "$MY_DOCKER_USER" --password-stdin
+            docker push ${IMG_NAME}:latest
+          '''
         }
-     }
-
-
-  stage('run pod and service'){
-    steps{
-      sh '''
-         kubectl apply -f deployment.yaml
-         kubectl apply -f service.yml
-
-      '''
+      }
     }
-  }
-    
 
     stage("Deploy to Minikube on EC2") {
-  steps {
-    withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY')]) {
-      // Upload both YAML files to EC2
-      sh """
-        scp -i "$SSH_KEY" -o StrictHostKeyChecking=no deployment.yaml service.yml \
-        ubuntu@${MINIKUBE_IP}:/home/ubuntu/
-      """
+      steps {
+        withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY')]) {
 
-      // Apply on Minikube
-      sh """
-        ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@${MINIKUBE_IP} '
-          kubectl apply -f deployment.yaml
-          kubectl apply -f service.yml
+          // Upload both YAML files
+          sh """
+            scp -i "$SSH_KEY" -o StrictHostKeyChecking=no deployment.yaml service.yml \
+            ubuntu@${MINIKUBE_IP}:/home/ubuntu/
+          """
 
-          # Show deployed resources
-          kubectl get all -A
-        '
-      """
+          // Apply deployment & service on EC2’s Minikube
+          sh """
+            ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@${MINIKUBE_IP} '
+              kubectl delete -f deployment.yaml --ignore-not-found=true
+              kubectl delete -f service.yml --ignore-not-found=true
+
+              kubectl apply -f deployment.yaml
+              kubectl apply -f service.yml
+
+              kubectl get pods -o wide
+            '
+          """
+        }
+      }
     }
   }
-}
-
-    
-  }
-  
 }
