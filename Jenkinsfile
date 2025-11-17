@@ -4,6 +4,7 @@ pipeline{
   environment {
     IMG_NAME = 'maheshbharambe45/node_img'
     PORT_MAPPING = '8081:3000'
+    MINIKUBE_IP = '3.110.80.110'
   }
   stages{
     stage('check_files'){
@@ -64,13 +65,30 @@ pipeline{
     }
   }
     
-  stage('check pods'){
-    steps{
-      sh '''
-        kubectl get all
-      '''
+
+    stage("Deploy to Minikube on EC2") {
+  steps {
+    withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY')]) {
+      // Upload both YAML files to EC2
+      sh """
+        scp -i "$SSH_KEY" -o StrictHostKeyChecking=no deployment.yaml service.yml \
+        ubuntu@${MINIKUBE_IP}:/home/ubuntu/
+      """
+
+      // Apply on Minikube
+      sh """
+        ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no ubuntu@${MINIKUBE_IP} '
+          kubectl apply -f deployment.yaml
+          kubectl apply -f service.yml
+
+          # Show deployed resources
+          kubectl get all -A
+        '
+      """
     }
   }
+}
+
     
   }
   
