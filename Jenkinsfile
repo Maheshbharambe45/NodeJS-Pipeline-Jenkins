@@ -14,6 +14,13 @@ pipeline{
       }
     }
 
+    stage('Run Tests') {
+      steps {
+          echo 'Running Jest tests...'
+          sh 'npm install'
+          sh 'npm test'
+      }
+  }
   stage('building the application'){
     steps{
       sh '''
