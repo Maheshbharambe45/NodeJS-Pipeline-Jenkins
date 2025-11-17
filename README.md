@@ -67,6 +67,12 @@ This pipeline auto-builds on every GitHub push using a webhook pointing to Jenki
 
 ![Website Screenshot](assets/Screenshot%202025-11-18%20000329.png)
 
+
+## Verfiy pods on EC2 Instance
+
+![Website Screenshot](assets/Screenshot%202025-11-18%20001213.png)
+
+
 ##  Port Forward to access application
 
 ```bash
